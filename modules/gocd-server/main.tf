@@ -1,11 +1,3 @@
-variable "vpc_id" {}
-variable "public_subnets" {}
-variable "private_subnets" {}
-variable "ingress_cidr_blocks" {}
-variable "key_name" {}
-variable "ami" {}
-variable "instance_type" {}
-
 resource "aws_security_group" "gocd_elb" {
     name = "gocd-ui-elb-sg"
     description = "Security group for the gocd UI ELBs"
@@ -148,7 +140,7 @@ resource "aws_autoscaling_group" "gocd_server" {
     desired_capacity = 1
     default_cooldown = 30
     force_delete = true
-    
+
     tag {
         key = "Name"
         value = "gocd-server"
@@ -160,8 +152,4 @@ resource "aws_autoscaling_group" "gocd_server" {
         value = "gocd-server"
         propagate_at_launch = true
     }
-}
-
-output "elb_address" {
-    value = "${aws_elb.gocd_elb.dns_name}"
 }
