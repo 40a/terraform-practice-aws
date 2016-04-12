@@ -1,17 +1,5 @@
-provider "aws" {
-    region = "us-west-2"
-}
-
-variable "environment_name" {
-    default = "core"
-}
-
-variable "key_name" {
-    default = "chef"
-}
-
 module "vpc" {
-    source = "../modules/vpc"
+    source = "../../modules/vpc"
     name = "${var.environment_name}"
     cidr = "10.0.0.0/16"
     private_subnets = "10.0.0.0/21,10.0.64.0/21,10.0.128.0/21"
@@ -19,12 +7,8 @@ module "vpc" {
     availability_zones = "us-west-2a,us-west-2b,us-west-2c"
 }
 
-variable "gocd_server_ami" {
-    default = "ami-27a05447"
-}
-
 module "gocd-server" {
-    source = "../modules/gocd-server"
+    source = "../../modules/gocd-server"
     ami = "${var.gocd_server_ami}"
     vpc_id = "${module.vpc.vpc_id}"
     public_subnets = "${module.vpc.public_subnets}"
@@ -34,12 +18,8 @@ module "gocd-server" {
     instance_type = "t2.micro"
 }
 
-variable "gocd_linux_agent_ami" {
-    default = "ami-4dd6212d"
-}
-
 module "gocd-linux-agent" {
-    source = "../modules/gocd-linux-agent"
+    source = "../../modules/gocd-linux-agent"
     ami = "${var.gocd_linux_agent_ami}"
     vpc_id = "${module.vpc.vpc_id}"
     public_subnets = "${module.vpc.public_subnets}"

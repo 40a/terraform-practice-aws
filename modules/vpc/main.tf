@@ -1,9 +1,3 @@
-variable "name" {}
-variable "cidr" {}
-variable "public_subnets" {}
-variable "private_subnets" {}
-variable "availability_zones" {}
-
 resource "aws_vpc" "vpc" {
     cidr_block = "${var.cidr}"
     enable_dns_hostnames = true
@@ -18,7 +12,7 @@ resource "aws_subnet" "private" {
     vpc_id = "${aws_vpc.vpc.id}"
     cidr_block = "${element(split(",", var.private_subnets), count.index)}"
     availability_zone = "${element(split(",", var.availability_zones), count.index)}"
-    
+
     tags {
         Name = "${format("%s Private %d", var.name, count.index + 1)}"
         network = "private"
@@ -32,7 +26,7 @@ resource "aws_subnet" "public" {
     cidr_block = "${element(split(",", var.public_subnets), count.index)}"
     availability_zone = "${element(split(",", var.availability_zones), count.index)}"
     map_public_ip_on_launch = true
-    
+
     tags {
         Name = "${format("%s Public %d", var.name, count.index + 1)}"
     }
@@ -40,7 +34,7 @@ resource "aws_subnet" "public" {
 
 resource "aws_internet_gateway" "vpc" {
     vpc_id = "${aws_vpc.vpc.id}"
-    
+
     tags {
         Name = "${format("%s Gateway", var.name)}"
     }
@@ -100,32 +94,4 @@ resource "aws_nat_gateway" "private" {
 
     allocation_id = "${element(aws_eip.nat_eip.*.id, count.index)}"
     subnet_id = "${element(aws_subnet.public.*.id, count.index)}"
-}
-
-output "private_subnets" {
-    value = "${join(",", aws_subnet.private.*.id)}"
-}
-
-output "public_subnets" {
-    value = "${join(",", aws_subnet.public.*.id)}"
-}
-
-output "private_availability_zones" {
-    value = "${join(",", aws_subnet.private.*.availability_zone)}"
-}
-
-output "public_availability_zones" {
-    value = "${join(",", aws_subnet.public.*.availability_zone)}"
-}
-
-output "name" {
-    value = "${var.name}"
-}
-
-output "vpc_id" {
-    value = "${aws_vpc.vpc.id}"
-}
-
-output "cidr_block" {
-    value = "${aws_vpc.vpc.cidr_block}"
 }
